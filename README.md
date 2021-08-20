@@ -81,8 +81,8 @@ function routing() {
 #### Change the color path
 ```javascript
 map.call('Route.line', 'road', { lineColor: '#009910', lineWidth: '1', borderColor: '#000000', borderWidth : '1' });
-#Call this function before Route.search.
 ```
+- Call this function before Route.search.
 
 see more: [
 React Native call function](https://api.longdo.com/map/doc/react-native.php#call), [JavaScript routing option](https://api.longdo.com/map/doc/ref.php#Route)

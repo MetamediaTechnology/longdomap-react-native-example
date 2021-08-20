@@ -1,0 +1,7 @@
+{
+  "name": "reactMapAndroid",
+  "displayName": "reactMapAndroid",
+  "android": {
+    "package": "thisisreallymagic"
+  }
+}

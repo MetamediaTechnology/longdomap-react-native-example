@@ -44,7 +44,7 @@
    };
 
   //  Check Location Session
-  Longdo.apiKey = '[YOUR-Map-Key-API]';
+  Longdo.apiKey = '[YOUR-Key-API]';
   // https://map.longdo.com/console
   let map;
   let demo = '111';
@@ -271,9 +271,10 @@
    }
 
    async function updateLocation(position) {
+     map.call('Overlays.clear');
      let location = { lat: position.coords.latitude ,lon: position.coords.longitude }
      let home = Longdo.object('Marker', location, { detail: 'Im here' });
-     map.call('Overlays.clear');
+     console.log(map)
      map.call('location', location );
      map.call('Overlays.add', home);
    }

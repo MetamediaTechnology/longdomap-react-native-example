@@ -185,7 +185,7 @@
     Geolocation.watchPosition(
       (position) => {
         setLocation(position);
-        // updateLocation(position)
+        updateLocation(position)
       },
       (error) => {
         setLocation(null);
@@ -275,12 +275,6 @@
      let home = Longdo.object('Marker', location, { detail: 'Im here' });
      map.call('Overlays.clear');
      map.call('location', location );
-     map.call('Overlays.add', home);
-   }
-
-   async function gotoLocation(position) {
-     let location = { lat: position.coords.latitude ,lon: position.coords.longitude }
-     let home = Longdo.object('Marker', location, { detail: 'Im here' });
      map.call('Overlays.add', home);
    }
 

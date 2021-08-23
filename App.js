@@ -36,7 +36,9 @@
  import Longdo from 'longdo-map-react-native'
  import Geolocation from 'react-native-geolocation-service';
  import VIForegroundService from '@voximplant/react-native-foreground-service';
- 
+
+ let map;
+
  const App: () => Node = () => {
    const isDarkMode = useColorScheme() === 'dark';
    const backgroundStyle = {
@@ -44,10 +46,8 @@
    };
 
   //  Check Location Session
-  Longdo.apiKey = '[YOUR-Key-API]';
+  Longdo.apiKey = '[YOUR-KEY-API]';
   // https://map.longdo.com/console
-  let map;
-  let demo = '111';
   let loc = { lon: 100.5, lat: 13.7 };
   let home = Longdo.object('Marker', loc, { detail: 'Home' });
   const [myText, setMyText] = useState("Move location");
@@ -134,16 +134,6 @@
     return false;
   };
 
-
-  const removeLocationUpdates = useCallback(() => {
-    if (watchId.current !== null) {
-      stopForegroundService();
-      Geolocation.clearWatch(watchId.current);
-      watchId.current = null;
-      setObserving(false);
-    }
-  }, [stopForegroundService]);
-
   const startForegroundService = async () => {
     if (Platform.Version >= 26) {
       await VIForegroundService.createNotificationChannel({
@@ -168,9 +158,7 @@
   }, []);
 
 
-
-  async function getLocationUpdates() {
-  
+  const getLocationUpdates = async () => {
     const hasPermission = await hasLocationPermission();
 
     if (!hasPermission) {
@@ -182,7 +170,8 @@
     }
 
     setObserving(true);
-    Geolocation.watchPosition(
+
+    watchId.current = Geolocation.watchPosition(
       (position) => {
         setLocation(position);
         updateLocation(position)
@@ -202,6 +191,16 @@
       },
     );
   };
+
+  const removeLocationUpdates = useCallback(() => {
+    if (watchId.current !== null) {
+      stopForegroundService();
+      Geolocation.clearWatch(watchId.current);
+      watchId.current = null;
+      setObserving(false);
+      clearOverlays();
+    }
+  }, [stopForegroundService]);
   
   function getCurrentLocation() {
     if (hasLocationPermission) {
@@ -221,6 +220,7 @@
   // End of Geolocation Session
 
   // Longdo Map Session
+  
  
    function onOverlayClick(data) {
      if (Longdo.isSameObject(data, home)) {
@@ -274,7 +274,7 @@
      map.call('Overlays.clear');
      let location = { lat: position.coords.latitude ,lon: position.coords.longitude }
      let home = Longdo.object('Marker', location, { detail: 'Im here' });
-     console.log(map)
+
      map.call('location', location );
      map.call('Overlays.add', home);
    }

@@ -52,7 +52,7 @@ Here are sample functions:
 - `layer`, `zoom`, `location`, `zoomRange` is the initial map setting.
 - `onOverlayClick`, `onLocation`, `onGuideComplate` is the Map or Overlay Events. see more: [`Longdo.MapView` Component]( https://api.longdo.com/map/doc/react-native.php)
 
-### Add marker
+### Marker
 simple marker
 ```javascript
 async function addMarker() {

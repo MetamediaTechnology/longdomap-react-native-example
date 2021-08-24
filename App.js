@@ -12,7 +12,6 @@
  import {
    SafeAreaView,
    TextInput,
-   ScrollView,
    PermissionsAndroid,
    Platform,
    StatusBar,
@@ -22,7 +21,6 @@
    useColorScheme,
    View,
    Button,
-   Image
  } from 'react-native';
  
  import {
@@ -40,13 +38,8 @@
  let map;
 
  const App: () => Node = () => {
-   const isDarkMode = useColorScheme() === 'dark';
-   const backgroundStyle = {
-     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-   };
 
-  //  Check Location Session
-  Longdo.apiKey = '[YOUR-KEY-API]';
+  Longdo.apiKey = 'covid19';
   // https://map.longdo.com/console
   let loc = { lon: 100.5, lat: 13.7 };
   let home = Longdo.object('Marker', loc, { detail: 'Home' });
@@ -54,7 +47,7 @@
   const [observing, setObserving] = useState(false);
   const [foregroundService, setForegroundService] = useState(false);
   const [trackLocation, setLocation] = useState(null);
-
+  const [text, onChangeText] = React.useState("");
   const watchId = useRef(null);
 
   useEffect(() => {
@@ -220,43 +213,57 @@
   // End of Geolocation Session
 
   // Longdo Map Session
-  
+  function mapOnReady() {
+    addPolygon();
+  }
  
-   function onOverlayClick(data) {
-     if (Longdo.isSameObject(data, home)) {
-       console.log('At Home');
-     }
-     map.call('Overlays.list').then((e) => {
-       console.log(JSON.stringify(e));
-     });
-   }
+  function onOverlayClick(data) {
+    if (Longdo.isSameObject(data, home)) {
+      console.log('At Home');
+    }
+    map.call('Overlays.list').then((e) => {
+      console.log(JSON.stringify(e));
+    });
+  }
 
-   function onGuideComplete(data) {
-     alert('ระยะทาง: ' + data[0].distance + ' m. ' + 'ระยะเวลา: ' + data[0].interval + ' วินาที' ); // ระยะทาง (เมตร)
-   }
+  function onGuideComplete(data) {
+    alert('ระยะทาง: ' + data[0].distance + ' m. ' + 'ระยะเวลา: ' + data[0].interval + ' วินาที' ); // ระยะทาง (เมตร)
+  }
 
-   async function onLocation() {
-     let location = await map.call('location');
-     setMyText(location.lat +',' + location.lon)
-   }
- 
-   async function addMarker() {
-     let location = await map.call('location');
-     let newMarker = Longdo.object('Marker', location, { title: 'Marker', detail: 'Marker', icon: { url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAA3QAAAN0BcFOiBwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAVISURBVFiF7ZdbjFVnFcd/a+9vn33OnMOZM/cZhtJCKnUAMwEb52IzlUhATUtJlMZGiMYmhdC0tYZofDBR05TERNLEkPbFYJoYcZDoYONDi71MAwzSArZDbbgOEGbOzJy5nss++/r5MB0Clukwtgk+9P+8Lr9vr/2ttT7RWnMnZdzR7J8D/D8AqPkMRr4u20KXX2NyNGxgaypgRah5GIOvGJrFGi6hOVBtcZBuHS4UQOa6Bdn1slK7/CUsswLATECsCkdMEnPE6tcGz9b8WR/+VAAD6yRuR+yPHDZpjRgKrCow47cZEA6J8HTmoL68YIDsOvlp6PJL7WOLASoNVmom6gKVM4RvZw7q3tsCGHpQugjZH7o0AagkWJUg5oIT36ixmKIl1a1HP8nIeK/TOBk6vBW6NBkxKFfBRSWcmhYuFoQgWnjmY0E9B/zlNSWf5+azlav3owHyAq+HBvkAIuBSWRFqaLIj1tWGtGY05jylmAhNXnJXMl59L77v8d3pN92OymJDVbeemstHAXwgad6nktXGKOfE452S4sh0DJhpFGeKAV2TPl11EctTH781vhYOTWXonqzGicokC5epb2zib95ddlvw4VZg75wAJeBluYdziXr+4Taym9PY8YALZUXWM4iAMyXFxbJJf9FnY53PujqN+qiFHSum2DdeS9a3rgctFvIMXCgQi8XIWurner18UHtYv3ErAGPMlJ6c2Pz4qZ10bfkefzDu4Zt2xPN1DhsyLovMmRM7kfD2dIy9V+P8fWimFi/m6tk93HRT8lndbZX5Rc0FGmJBQznP69mvyZ9uCdDRF21OR05xJDdOw+Jm/mXVAXDIr2NThbCj1uH+lI/1Uf2HPJMDIzYXCkJvYdHHAi4yQnbUjvDCkiusijsYMYhVQlDk0cEuOTfeLumbAAD6o+RP/trTQ27wGtnAJI/Fe1GSg36KKkOxLe2xpdbhC4kAgHOO4siYwZpE6XogAb6RnuKluy7zrfTUTUNGpUBVQORwb1kYHNooX77uN9uIVq3teFHFrB3JsKz38G70O7fBTFBgsRSpE7jPjDgdGgx4Bn35GEvtkC13m/xmrJmWuMP2mlGW2+6tvvKMNJSHIfJBLFxbsay2Vw/d1AlbW1uTYZi0+/uPjh/vlF8NuPbPhgNUCR8TWGVq8houRcKob9BeFRK3k3w1U5g78Q2KfCgOQ66ykWXf38WpPbtWzTmMZnW8U3YXPNl1PhA1oaFa4Ium5kQg+MBiW/OArUmnwbDnhzg7JtQ/9BRLNv2AwcfXvjsvwKz6OmTPhCdPnw/F3GRFOBqOBAZnJUXa8Hkk5lCjwJoPRMNV1YKaniSXz+rbBpjV0XbZm47YntGYA5LkSWMtipANXj+b7TzNgcaMz8wSFOR0NfXmOAChA94k6ADOWAbve7GJBW9EnX36ydX/1OqaKa+epJKW+1awY/sTvF3RyuGSyTUleGU4NSiMrd7K8udeIfKgPAJubib5cdPiheklKEvt/59Xsra+aGNPWP9sRUWCkYLLmrZ2Ro00bznCqBICINW8jNxr3TN/vwvTJvxRp9hXaOSxyuy+Hx3L71xwCW6UiKg1HQ+6z+x8wjhx8jQTvQf4kn8FQ4SuRETG18QNuKIMXnEqOeFlWGqWou9khh9/uFf/Hj5hJbtdrVzbvk1Z1ssiQsKZ8B8xzmqJghhA3IR/BxlOhrW0mJN6fWq8r9EOfrjhDf3h9UN8Fi+jlWvaNoN0ekH02/P9J671PGA8P+Xpx8qRVJdQXrMdHloahM+09enp//b9TAA+je74u+BzgDsO8B/ytjz4VPeucgAAAABJRU5ErkJggg==', offset: { x: 12, y: 45 } }});
-     map.call('Overlays.add', newMarker);
-   }
+  async function onLocation() {
+    let location = await map.call('location');
+    setMyText(location.lat +',' + location.lon)
+  }
 
-   async function draggableMarker() {
+  async function addMarker() {
+    let location = await map.call('location');
+    let newMarker = Longdo.object('Marker', location, { title: 'Marker', detail: 'Marker', icon: { url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAA3QAAAN0BcFOiBwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAVISURBVFiF7ZdbjFVnFcd/a+9vn33OnMOZM/cZhtJCKnUAMwEb52IzlUhATUtJlMZGiMYmhdC0tYZofDBR05TERNLEkPbFYJoYcZDoYONDi71MAwzSArZDbbgOEGbOzJy5nss++/r5MB0Clukwtgk+9P+8Lr9vr/2ttT7RWnMnZdzR7J8D/D8AqPkMRr4u20KXX2NyNGxgaypgRah5GIOvGJrFGi6hOVBtcZBuHS4UQOa6Bdn1slK7/CUsswLATECsCkdMEnPE6tcGz9b8WR/+VAAD6yRuR+yPHDZpjRgKrCow47cZEA6J8HTmoL68YIDsOvlp6PJL7WOLASoNVmom6gKVM4RvZw7q3tsCGHpQugjZH7o0AagkWJUg5oIT36ixmKIl1a1HP8nIeK/TOBk6vBW6NBkxKFfBRSWcmhYuFoQgWnjmY0E9B/zlNSWf5+azlav3owHyAq+HBvkAIuBSWRFqaLIj1tWGtGY05jylmAhNXnJXMl59L77v8d3pN92OymJDVbeemstHAXwgad6nktXGKOfE452S4sh0DJhpFGeKAV2TPl11EctTH781vhYOTWXonqzGicokC5epb2zib95ddlvw4VZg75wAJeBluYdziXr+4Taym9PY8YALZUXWM4iAMyXFxbJJf9FnY53PujqN+qiFHSum2DdeS9a3rgctFvIMXCgQi8XIWurner18UHtYv3ErAGPMlJ6c2Pz4qZ10bfkefzDu4Zt2xPN1DhsyLovMmRM7kfD2dIy9V+P8fWimFi/m6tk93HRT8lndbZX5Rc0FGmJBQznP69mvyZ9uCdDRF21OR05xJDdOw+Jm/mXVAXDIr2NThbCj1uH+lI/1Uf2HPJMDIzYXCkJvYdHHAi4yQnbUjvDCkiusijsYMYhVQlDk0cEuOTfeLumbAAD6o+RP/trTQ27wGtnAJI/Fe1GSg36KKkOxLe2xpdbhC4kAgHOO4siYwZpE6XogAb6RnuKluy7zrfTUTUNGpUBVQORwb1kYHNooX77uN9uIVq3teFHFrB3JsKz38G70O7fBTFBgsRSpE7jPjDgdGgx4Bn35GEvtkC13m/xmrJmWuMP2mlGW2+6tvvKMNJSHIfJBLFxbsay2Vw/d1AlbW1uTYZi0+/uPjh/vlF8NuPbPhgNUCR8TWGVq8houRcKob9BeFRK3k3w1U5g78Q2KfCgOQ66ykWXf38WpPbtWzTmMZnW8U3YXPNl1PhA1oaFa4Ium5kQg+MBiW/OArUmnwbDnhzg7JtQ/9BRLNv2AwcfXvjsvwKz6OmTPhCdPnw/F3GRFOBqOBAZnJUXa8Hkk5lCjwJoPRMNV1YKaniSXz+rbBpjV0XbZm47YntGYA5LkSWMtipANXj+b7TzNgcaMz8wSFOR0NfXmOAChA94k6ADOWAbve7GJBW9EnX36ydX/1OqaKa+epJKW+1awY/sTvF3RyuGSyTUleGU4NSiMrd7K8udeIfKgPAJubib5cdPiheklKEvt/59Xsra+aGNPWP9sRUWCkYLLmrZ2Ro00bznCqBICINW8jNxr3TN/vwvTJvxRp9hXaOSxyuy+Hx3L71xwCW6UiKg1HQ+6z+x8wjhx8jQTvQf4kn8FQ4SuRETG18QNuKIMXnEqOeFlWGqWou9khh9/uFf/Hj5hJbtdrVzbvk1Z1ssiQsKZ8B8xzmqJghhA3IR/BxlOhrW0mJN6fWq8r9EOfrjhDf3h9UN8Fi+jlWvaNoN0ekH02/P9J671PGA8P+Xpx8qRVJdQXrMdHloahM+09enp//b9TAA+je74u+BzgDsO8B/ytjz4VPeucgAAAABJRU5ErkJggg==', offset: { x: 16, y: 16 }}
+    });
+    map.call('Overlays.add', newMarker);
+  }
+
+  async function draggableMarker() {
     let location = await map.call('location');
     let newMarker = Longdo.object('Marker', location, { detail: 'Marker', draggable: true });
     map.call('Overlays.add', newMarker);
-   }
- 
-   async function clearOverlays() {
+  }
+
+  function addPolygon() {
+    let geomLocation = [
+      { lon: 99, lat: 14 },
+      { lon: 100, lat: 13 },
+      { lon: 102, lat: 13 },
+      { lon: 103, lat: 14 }
+    ];
+    let newGeom = Longdo.object('Polygon', geomLocation, { detail: 'Polygon' });
+    map.call('Overlays.add', newGeom);
+  }
+
+  async function clearOverlays() {
     map.call('Overlays.clear');
-   }
-   
-   async function routing() {
+  }
+  
+  async function routing() {
     map.call('Route.clear');
     // https://api.longdo.com/map/doc/ref.php#Route.line
     map.call('Route.line', 'road', { lineColor: '#009910', lineWidth: '2', borderColor: '#000000', borderWidth : '1' });
@@ -268,25 +275,35 @@
     map.call('Route.add', starterPoint);
     map.call('Route.add', destinationPoint);
     map.call('Route.search');
-   }
+    getMoviesFromApi();
+  }
 
-   async function updateLocation(position) {
-     map.call('Overlays.clear');
-     let location = { lat: position.coords.latitude ,lon: position.coords.longitude }
-     let home = Longdo.object('Marker', location, { detail: 'Im here' });
+  async function updateLocation(position) {
+    map.call('Overlays.clear');
+    let location = { lat: position.coords.latitude ,lon: position.coords.longitude }
+    let home = Longdo.object('Marker', location, { detail: 'Im here' });
 
-     map.call('location', location );
-     map.call('Overlays.add', home);
-   }
+    map.call('location', location );
+    map.call('Overlays.add', home);
+  }
 
    return (
      <SafeAreaView style={styles.container}>
        {/* <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} /> */}
+       <TextInput
+        style={styles.input}
+        onChangeText={onChangeText}
+        value={text}
+        placeholder="ใส่คำค้นหา"
+       />
+       <Text style={{padding: 2, fontSize: 24}}>
+         {text}
+       </Text>
        <Longdo.MapView
          ref={r => (map = r)}
          layer={Longdo.static('Layers', 'GRAY')}
          zoom={15}
-         zoomRange={{min: 8, max: 18}}
+         zoomRange={{min: 5, max: 18}}
          location={{lon: 100.5382, lat: 13.7649}}
 
          lastView={false}
@@ -294,6 +311,7 @@
          onOverlayClick={onOverlayClick}
          onLocation={onLocation}
          onGuideComplete={onGuideComplete}
+         onReady={mapOnReady}
        />
        <Text>crosshair: {myText}</Text>
        <Text>current location: { trackLocation?.coords?.latitude }, { trackLocation?.coords?.longitude }</Text>
@@ -305,6 +323,10 @@
           <Button
             title="Draggable Marker"
             onPress={draggableMarker}
+          />
+          <Button
+            title="Add Polygon"
+            onPress={addPolygon}
           />
           <Button
             title="Clear Overlays"
@@ -339,9 +361,6 @@
  };
  
  const styles = StyleSheet.create({
-   highlight: {
-     fontWeight: '700',
-   },
    container: {
      flex: 1,
      backgroundColor: '#fff',
@@ -352,12 +371,15 @@
      margin: 12,
      borderWidth: 1,
      padding: 10,
+     backgroundColor: '#fff',
+     zIndex: 10
    },
    fixToText: {
      position: 'absolute',
      bottom: 30,
      right:5,
      flexDirection: 'column',
+     zIndex: 2
    },
  });
  

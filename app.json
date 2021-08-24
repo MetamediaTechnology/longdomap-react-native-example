@@ -1,7 +1,10 @@
 {
   "name": "reactMapAndroid",
   "displayName": "reactMapAndroid",
+  "ios": {
+    "bundleIdentifier": "BUNDLE_ID"
+  },
   "android": {
-    "package": "thisisreallymagic"
+    "package": "PACKAGE_NAME"
   }
 }

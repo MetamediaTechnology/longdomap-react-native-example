@@ -39,7 +39,7 @@
 
  const App: () => Node = () => {
 
-  Longdo.apiKey = 'covid19';
+  Longdo.apiKey = '[YOUR-Key-API]';
   // https://map.longdo.com/console
   let loc = { lon: 100.5, lat: 13.7 };
   let home = Longdo.object('Marker', loc, { detail: 'Home' });
@@ -287,24 +287,51 @@
     map.call('Overlays.add', home);
   }
 
+  // try search function api
+
+  function onPressSearch() {
+    map.call('Search.search', 'วัด');
+  }
+  function onSearch(data) {
+    console.log(data)
+  }
+
+  // try search web service
+  function fetchData(keyword) {
+    this.setState({ text });
+    const url = 'https://search.longdo.com/mapsearch/json/suggest?limit=20&key='+ Longdo.apiKey +'&keyword=';
+
+    fetch(url + keyword)
+      .then(response => response.json())
+      .then((responseJson) => {
+        this.setState({
+          text: responseJson,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+  
    return (
      <SafeAreaView style={styles.container}>
        {/* <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} /> */}
        <TextInput
         style={styles.input}
         onChangeText={onChangeText}
+        // onChangeText={(text) => {
+        //   this.fetchData(text);
+        // }}
         value={text}
         placeholder="ใส่คำค้นหา"
        />
-       <Text style={{padding: 2, fontSize: 24}}>
-         {text}
-       </Text>
        <Longdo.MapView
          ref={r => (map = r)}
          layer={Longdo.static('Layers', 'GRAY')}
          zoom={15}
          zoomRange={{min: 5, max: 18}}
          location={{lon: 100.5382, lat: 13.7649}}
+         onSearch={onSearch}
 
          lastView={false}
          // language={'en'}

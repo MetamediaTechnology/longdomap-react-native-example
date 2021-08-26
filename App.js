@@ -36,12 +36,11 @@
  import VIForegroundService from '@voximplant/react-native-foreground-service';
 
  let map;
- let keyAPI = '[YOUR-Key-API]';  //https://map.longdo.com/console
+ let keyAPI = 'your-key-api';  //Registered the Key from https://map.longdo.com/console
 
  const App: () => Node = () => {
 
   Longdo.apiKey = keyAPI;
-  let loc = { lon: 100.5, lat: 13.7 };
   const [myText, setMyText] = useState("Move location");
   const [observing, setObserving] = useState(false);
   const [foregroundService, setForegroundService] = useState(false);
@@ -214,6 +213,7 @@
   // Longdo Map Session
   function mapOnReady() {
     addMarker();
+    console.log(distance({lon: 100.5, lat: 13.7}, {lon: 100.6926224, lat: 13.769601}));
   }
 
   function onGuideComplete(data) {
@@ -290,6 +290,24 @@
     const response = await fetch(url + '&lon=' + location.lon +'&lat=' + location.lat)
     const result = await response.json()
     return result
+  }
+
+  function distance(location1, location2) {
+    var R = 6371; // Radius of the earth in km
+    var dLat = deg2rad(location2.lat-location1.lat);  // deg2rad below
+    var dLon = deg2rad(location2.lon-location1.lon); 
+    var a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(deg2rad(location1.lat)) * Math.cos(deg2rad(location2.lat)) *
+      Math.sin(dLon/2) * Math.sin(dLon/2)
+      ; 
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    var d = R * c; // Distance in km
+    return d;
+  }
+  
+  function deg2rad(deg) {
+    return deg * (Math.PI/180)
   }
 
   // try search function api

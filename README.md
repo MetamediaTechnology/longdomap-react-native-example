@@ -93,6 +93,210 @@ map.call('Route.line', 'road', { lineColor: '#009910', lineWidth: '1', borderCol
 see more: [
 React Native call function](https://api.longdo.com/map/doc/react-native.php#call), [JavaScript routing option](https://api.longdo.com/map/doc/ref.php#Route)
 
+### Search
+simple marker
+```javascript
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+
+let map;
+let keyAPI = 'YOUR-KEY-APII'; //Registered the Key from https://map.longdo.com/console
+
+function HomeScreen({navigation}) {
+   Longdo.apiKey = keyAPI;
+   return (
+    <SafeAreaView style={styles.container}>
+      <TextInput
+        style={styles.input}
+        placeholder="ใส่คำค้นหา"
+        onFocus={() => navigation.navigate('Search')}
+      />
+      <Longdo.MapView
+        ref={r => (map = r)}
+        layer={Longdo.static('Layers', 'GRAY')}
+        zoom={15}
+        zoomRange={{min: 5, max: 18}}
+        location={{lon: 100.5382, lat: 13.7649}}
+        onSearch={onSearch}
+        lastView={false}
+      />
+     </SafeAreaView>
+   );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+  },
+  input: {
+    height: 40,
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
+    backgroundColor: '#fff',
+    zIndex: 10,
+  },
+  buttonBack: {
+    marginVertical: 12,
+    marginHorizontal: 10,
+    height: 40,
+  },
+  inputSearch: {
+    flex: 6,
+    height: 40,
+    marginRight: 12,
+    marginTop: 12,
+    borderWidth: 1,
+    padding: 10,
+    backgroundColor: '#fff',
+    zIndex: 10,
+  }
+})
+```
+
+Intregrated `SeachScreen` function
+
+```javascript
+function SearchScreen({navigation}) {
+  // *****************************************************************
+
+  const [search, setSearch] = useState('');
+  const [filteredDataSource, setFilteredDataSource] = useState([]);
+
+  const searchFilterFunction = text => {
+    if (text.length >= 3) {
+      const urlSuggest =
+        'https://search.longdo.com/mapsearch/json/suggest?limit=10&key=' +
+        keyAPI +
+        '&keyword=' +
+        text;
+      fetch(urlSuggest)
+        .then(response => response.json())
+        .then(responseJson => {
+          setFilteredDataSource(responseJson.data);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+      setSearch(text);
+    } else {
+      setFilteredDataSource([]);
+      setSearch(text);
+    }
+  };
+
+  const ItemSeparatorView = () => {
+    return (
+      // Flat List Item Separator
+      <View
+        style={{
+          height: 1,
+          backgroundColor: '#C8C8C8',
+          marginHorizontal: 12,
+        }}
+      />
+    );
+  };
+
+  const getItem = item => {
+    const urlSearch =
+      'https://search.longdo.com/mapsearch/json/search?limit=20&key=' +
+      keyAPI +
+      '&keyword=' +
+      item;
+    fetch(urlSearch)
+      .then(response => response.json())
+      .then(responseJson => {
+        map.call('Overlays.clear');
+        responseJson.data.forEach(item => {
+          let newMarker = Longdo.object(
+            'Marker',
+            {lat: item.lat, lon: item.lon},
+            {
+              title: item.name,
+              detail: item.address,
+            },
+          );
+          map.call('Overlays.add', newMarker);
+        });
+        let location = {
+          lon: responseJson.data[0].lon,
+          lat: responseJson.data[0].lat,
+        };
+        map.call('location', location);
+        navigation.navigate('Home', {
+          responseJson: responseJson.data,
+        });
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+
+  const Item = ({title}) => {
+    return (
+      <View>
+        <Text style={styles.textSuggest} onPress={() => getItem(title)}>
+          {title}
+        </Text>
+      </View>
+    );
+  };
+  const DATA = [
+    {
+      data: filteredDataSource.map(item => item.w),
+    },
+  ];
+
+  // ***************************************************************
+  return (
+    <View>
+      <View style={{flexDirection: 'row'}}>
+        <TouchableOpacity style={styles.buttonBack}>
+          <Button title="Back" onPress={() => navigation.navigate('Home')} />
+        </TouchableOpacity>
+        <TextInput
+          style={styles.inputSearch}
+          onChangeText={text => searchFilterFunction(text)}
+          autoFocus
+          value={search}
+          placeholder="ใส่คำค้นหา"
+        />
+      </View>
+
+      <SectionList
+        sections={DATA}
+        keyExtractor={(item, index) => item + index}
+        ItemSeparatorComponent={ItemSeparatorView}
+        renderItem={({item}) => <Item title={item} />}
+      />
+    </View>
+  );
+}
+```
+view componant
+
+```javascript
+const Stack = createNativeStackNavigator();
+
+const App: () => Node = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="Home"
+        screenOptions={{
+          headerShown: false,
+        }}>
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Search" component={SearchScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
+```
+
 ## Documentation
 
 - [Reference](https://api.longdo.com/map/doc/react-native.php)

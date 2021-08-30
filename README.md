@@ -9,6 +9,7 @@ This repository provides several basic examples of using Longdo Map React Native
 - [Marker](#marker)
 - [Search](#search)
 - [Routing](#routing)
+- [Realtime Tracking](#realtime-tracking)
 - [Documentation](#documentation)
 
 ## Installation
@@ -94,7 +95,6 @@ see more: [
 React Native call function](https://api.longdo.com/map/doc/react-native.php#call), [JavaScript routing option](https://api.longdo.com/map/doc/ref.php#Route)
 
 ### Search
-
 
 ![](https://map.longdo.com/blog/wp-content/uploads/2021/08/screenshot-search-1024x607.jpg)
 
@@ -301,6 +301,192 @@ const App: () => Node = () => {
   );
 };
 ```
+### Realtime Tracking
+
+This function require two packages:
+
+```javascript
+npm install react-native-geolocation-service
+```
+ref: https://www.npmjs.com/package/react-native-geolocation-service
+
+```javascript
+npm install @voximplant/react-native-foreground-service --save
+```
+ref: https://github.com/voximplant/react-native-foreground-service
+
+Here is the main code:
+
+```javascript
+import Geolocation from 'react-native-geolocation-service';
+import VIForegroundService from '@voximplant/react-native-foreground-service';
+
+const [observing, setObserving] = useState(false);
+
+useEffect(() => {
+    return () => {
+        removeLocationUpdates();
+    };
+}, [removeLocationUpdates]);
+
+const hasPermissionIOS = async () => {
+    const openSetting = () => {
+      Linking.openSettings().catch(() => {
+        Alert.alert('Unable to open settings');
+      });
+    };
+    const status = await Geolocation.requestAuthorization('whenInUse');
+
+    if (status === 'granted') {
+      return true;
+    }
+
+    if (status === 'denied') {
+      Alert.alert('Location permission denied');
+    }
+
+    if (status === 'disabled') {
+      Alert.alert(
+        `Turn on Location Services to allow "${appConfig.displayName}" to determine your location.`,
+        '',
+        [
+          {text: 'Go to Settings', onPress: openSetting},
+          {text: "Don't Use Location", onPress: () => {}},
+        ],
+      );
+    }
+
+    return false;
+};
+
+const hasLocationPermission = async () => {
+    if (Platform.OS === 'ios') {
+      const hasPermission = await hasPermissionIOS();
+      return hasPermission;
+    }
+
+    if (Platform.OS === 'android' && Platform.Version < 23) {
+      return true;
+    }
+
+    const hasPermission = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    );
+
+    if (hasPermission) {
+      return true;
+    }
+
+    const status = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    );
+
+    if (status === PermissionsAndroid.RESULTS.GRANTED) {
+      return true;
+    }
+
+    if (status === PermissionsAndroid.RESULTS.DENIED) {
+      ToastAndroid.show(
+        'Location permission denied by user.',
+        ToastAndroid.LONG,
+      );
+    } else if (status === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+      ToastAndroid.show(
+        'Location permission revoked by user.',
+        ToastAndroid.LONG,
+      );
+    }
+
+    return false;
+};
+
+const startForegroundService = async () => {
+    if (Platform.Version >= 26) {
+      await VIForegroundService.createNotificationChannel({
+        id: 'locationChannel',
+        name: 'Location Tracking Channel',
+        description: 'Tracks location of user',
+        enableVibration: false,
+      });
+    }
+
+    return VIForegroundService.startService({
+      channelId: 'locationChannel',
+      id: 420,
+      title: appConfig.displayName,
+      text: 'Tracking location updates',
+      icon: 'ic_launcher',
+    });
+};
+
+const stopForegroundService = useCallback(() => {
+    VIForegroundService.stopService().catch(err => err);
+}, []);
+
+const getLocationUpdates = async () => {
+    const hasPermission = await hasLocationPermission();
+
+    if (!hasPermission) {
+      return;
+    }
+
+    if (Platform.OS === 'android') {
+      await startForegroundService();
+    }
+
+    setObserving(true);
+
+    watchId.current = Geolocation.watchPosition(
+      position => {
+        setLocation(position);
+        updateLocation(position);
+      },
+      error => {
+        setLocation(null);
+        console.log(error);
+      },
+      {
+        accuracy: {
+          android: 'high',
+          ios: 'best',
+        },
+        distanceFilter: 0,
+        interval: 5000,
+        fastestInterval: 2000,
+      },
+    );
+};
+
+const removeLocationUpdates = useCallback(() => {
+    if (watchId.current !== null) {
+      stopForegroundService();
+      Geolocation.clearWatch(watchId.current);
+      watchId.current = null;
+      setObserving(false);
+      clearOverlays();
+    }
+}, [stopForegroundService]);
+```
+
+In view componant
+```javascript
+return (
+    <Longdo.MapView
+    ...
+    > // see more on Initial Map topic
+    <Button
+        title="Start Observing"
+        onPress={getLocationUpdates}
+        disabled={observing}
+    />
+    <Button
+        title="Stop Observing"
+        onPress={removeLocationUpdates}
+        disabled={!observing}
+    />
+)
+```
+
 
 ## Documentation
 

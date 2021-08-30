@@ -94,13 +94,17 @@ see more: [
 React Native call function](https://api.longdo.com/map/doc/react-native.php#call), [JavaScript routing option](https://api.longdo.com/map/doc/ref.php#Route)
 
 ### Search
-simple marker
+
+![](https://map.longdo.com/blog/wp-content/uploads/2021/08/ezgif-6-b9f8a95924cd-554x1024.gif)
+
+start with main app
+
 ```javascript
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 let map;
-let keyAPI = 'YOUR-KEY-APII'; //Registered the Key from https://map.longdo.com/console
+let keyAPI = 'YOUR-KEY-API'; //Registered the Key from https://map.longdo.com/console
 
 function HomeScreen({navigation}) {
    Longdo.apiKey = keyAPI;
@@ -156,7 +160,7 @@ const styles = StyleSheet.create({
 })
 ```
 
-Intregrated `SeachScreen` function
+Integrated `SeachScreen` function
 
 ```javascript
 function SearchScreen({navigation}) {

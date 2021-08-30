@@ -41,7 +41,7 @@ import Geolocation from 'react-native-geolocation-service';
 import VIForegroundService from '@voximplant/react-native-foreground-service';
 
 let map;
-let keyAPI = 'your-key-api'; //Registered the Key from https://map.longdo.com/console
+let keyAPI = '[YOUR_KEY-API]'; //Registered the Key from https://map.longdo.com/console
 
 function HomeScreen({navigation}) {
   Longdo.apiKey = keyAPI;
@@ -349,14 +349,6 @@ function HomeScreen({navigation}) {
     return deg * (Math.PI / 180);
   }
 
-  // try search function api
-  function onPressSearch() {
-    map.call('Search.search', 'วัด');
-  }
-  function onSearch(data) {
-    console.log(data);
-  }
-
   // try search web service
   function fetchData(keyword) {
     this.setState({text});
@@ -382,9 +374,6 @@ function HomeScreen({navigation}) {
       {/* <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} /> */}
       <TextInput
         style={styles.input}
-        // onChangeText={(text) => {
-        //   this.fetchData(text);
-        // }}
         placeholder="ใส่คำค้นหา"
         onFocus={() => navigation.navigate('Search')}
       />
@@ -394,7 +383,6 @@ function HomeScreen({navigation}) {
         zoom={15}
         zoomRange={{min: 5, max: 18}}
         location={{lon: 100.5382, lat: 13.7649}}
-        onSearch={onSearch}
         lastView={false}
         // language={'en'}
         onLocation={onLocation}
@@ -536,9 +524,6 @@ function SearchScreen({navigation}) {
           style={styles.inputSearch}
           onChangeText={text => searchFilterFunction(text)}
           autoFocus
-          // onChangeText={(text) => {
-          //   this.fetchData(text);
-          // }}
           value={search}
           placeholder="ใส่คำค้นหา"
         />
@@ -599,18 +584,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     zIndex: 10,
   },
+  textSuggest: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginHorizontal: 12,
+    backgroundColor: 'white',
+  },
   fixToText: {
     position: 'absolute',
     bottom: 30,
     right: 5,
     flexDirection: 'column',
     zIndex: 2,
-  },
-  textSuggest: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    marginHorizontal: 12,
-    backgroundColor: 'white',
   },
 });
 

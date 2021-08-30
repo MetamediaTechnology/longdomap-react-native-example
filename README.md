@@ -95,9 +95,10 @@ React Native call function](https://api.longdo.com/map/doc/react-native.php#call
 
 ### Search
 
-![](https://map.longdo.com/blog/wp-content/uploads/2021/08/ezgif-6-b9f8a95924cd-554x1024.gif)
 
-start with main app
+![](https://map.longdo.com/blog/wp-content/uploads/2021/08/screenshot-search-1024x607.jpg)
+
+Here is the main code:
 
 ```javascript
 import {NavigationContainer} from '@react-navigation/native';

@@ -301,6 +301,8 @@ const App: () => Node = () => {
   );
 };
 ```
+[Search Documentation](http://api.longdo.com/map/doc/rest.php#Search)
+
 ### Realtime Tracking
 
 This function require two packages:

@@ -514,8 +514,6 @@ function SearchScreen({navigation}) {
       .then(responseJson => {
         map.call('Overlays.clear');
         map.call('Route.clear');
-        console.log(responseJson.data)
-        originSearch.setText
         // responseJson.data.forEach(item => {
         //   let newMarker = Longdo.object(
         //     'Marker',

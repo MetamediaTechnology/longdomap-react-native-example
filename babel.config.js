@@ -1,4 +1,6 @@
 module.exports = {
-  presets: ['module:metro-react-native-babel-preset'],
-  plugins: [['@babel/plugin-proposal-private-methods', { "loose": true }]],
-};
+  presets: [
+    'module:metro-react-native-babel-preset',
+    ['@babel/preset-env', { "targets": "iOS >= 11, Android >= 56" }],
+  ],
+}

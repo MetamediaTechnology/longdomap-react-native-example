@@ -41,7 +41,8 @@ import Geolocation from 'react-native-geolocation-service';
 import VIForegroundService from '@voximplant/react-native-foreground-service';
 
 let map;
-let keyAPI = '[YOUR-KEY-API]'; //Registered the Key from https://map.longdo.com/console
+// let keyAPI = '[YOUR-KEY-API]'; //Registered the Key from https://map.longdo.com/console
+let keyAPI = ''
 
 function HomeScreen({navigation}) {
   Longdo.apiKey = keyAPI;
@@ -50,6 +51,7 @@ function HomeScreen({navigation}) {
   const [foregroundService, setForegroundService] = useState(false);
   const [trackLocation, setLocation] = useState(null);
   const [text, onChangeText] = React.useState('');
+  const [originSearch, setText] = React.useState('');
   const watchId = useRef(null);
 
   useEffect(() => {
@@ -262,6 +264,33 @@ function HomeScreen({navigation}) {
     map.call('Overlays.add', newMarker);
   }
 
+  function addMultipleMarker() {
+    let poi_Texi = [
+      {id: 1, latitude: 13.6619381, longitude: 100.6281849},
+      {id: 2, latitude: 13.6590381, longitude: 100.6263849},
+      {id: 3, latitude: 13.6569381, longitude: 100.6249849},
+      {id: 4, latitude: 13.6593381, longitude: 100.6300849},
+      {id: 5, latitude: 13.6606381, longitude: 100.6250849},
+    ]
+
+    poi_Texi.forEach(element => {
+      let newMarker = Longdo.object('Marker', {lat: element.latitude, lon: element.longitude}, {
+        title: 'Marker',
+        detail: element.id,
+        icon: {
+          url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAA3QAAAN0BcFOiBwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAVISURBVFiF7ZdbjFVnFcd/a+9vn33OnMOZM/cZhtJCKnUAMwEb52IzlUhATUtJlMZGiMYmhdC0tYZofDBR05TERNLEkPbFYJoYcZDoYONDi71MAwzSArZDbbgOEGbOzJy5nss++/r5MB0Clukwtgk+9P+8Lr9vr/2ttT7RWnMnZdzR7J8D/D8AqPkMRr4u20KXX2NyNGxgaypgRah5GIOvGJrFGi6hOVBtcZBuHS4UQOa6Bdn1slK7/CUsswLATECsCkdMEnPE6tcGz9b8WR/+VAAD6yRuR+yPHDZpjRgKrCow47cZEA6J8HTmoL68YIDsOvlp6PJL7WOLASoNVmom6gKVM4RvZw7q3tsCGHpQugjZH7o0AagkWJUg5oIT36ixmKIl1a1HP8nIeK/TOBk6vBW6NBkxKFfBRSWcmhYuFoQgWnjmY0E9B/zlNSWf5+azlav3owHyAq+HBvkAIuBSWRFqaLIj1tWGtGY05jylmAhNXnJXMl59L77v8d3pN92OymJDVbeemstHAXwgad6nktXGKOfE452S4sh0DJhpFGeKAV2TPl11EctTH781vhYOTWXonqzGicokC5epb2zib95ddlvw4VZg75wAJeBluYdziXr+4Taym9PY8YALZUXWM4iAMyXFxbJJf9FnY53PujqN+qiFHSum2DdeS9a3rgctFvIMXCgQi8XIWurner18UHtYv3ErAGPMlJ6c2Pz4qZ10bfkefzDu4Zt2xPN1DhsyLovMmRM7kfD2dIy9V+P8fWimFi/m6tk93HRT8lndbZX5Rc0FGmJBQznP69mvyZ9uCdDRF21OR05xJDdOw+Jm/mXVAXDIr2NThbCj1uH+lI/1Uf2HPJMDIzYXCkJvYdHHAi4yQnbUjvDCkiusijsYMYhVQlDk0cEuOTfeLumbAAD6o+RP/trTQ27wGtnAJI/Fe1GSg36KKkOxLe2xpdbhC4kAgHOO4siYwZpE6XogAb6RnuKluy7zrfTUTUNGpUBVQORwb1kYHNooX77uN9uIVq3teFHFrB3JsKz38G70O7fBTFBgsRSpE7jPjDgdGgx4Bn35GEvtkC13m/xmrJmWuMP2mlGW2+6tvvKMNJSHIfJBLFxbsay2Vw/d1AlbW1uTYZi0+/uPjh/vlF8NuPbPhgNUCR8TWGVq8houRcKob9BeFRK3k3w1U5g78Q2KfCgOQ66ykWXf38WpPbtWzTmMZnW8U3YXPNl1PhA1oaFa4Ium5kQg+MBiW/OArUmnwbDnhzg7JtQ/9BRLNv2AwcfXvjsvwKz6OmTPhCdPnw/F3GRFOBqOBAZnJUXa8Hkk5lCjwJoPRMNV1YKaniSXz+rbBpjV0XbZm47YntGYA5LkSWMtipANXj+b7TzNgcaMz8wSFOR0NfXmOAChA94k6ADOWAbve7GJBW9EnX36ydX/1OqaKa+epJKW+1awY/sTvF3RyuGSyTUleGU4NSiMrd7K8udeIfKgPAJubib5cdPiheklKEvt/59Xsra+aGNPWP9sRUWCkYLLmrZ2Ro00bznCqBICINW8jNxr3TN/vwvTJvxRp9hXaOSxyuy+Hx3L71xwCW6UiKg1HQ+6z+x8wjhx8jQTvQf4kn8FQ4SuRETG18QNuKIMXnEqOeFlWGqWou9khh9/uFf/Hj5hJbtdrVzbvk1Z1ssiQsKZ8B8xzmqJghhA3IR/BxlOhrW0mJN6fWq8r9EOfrjhDf3h9UN8Fi+jlWvaNoN0ekH02/P9J671PGA8P+Xpx8qRVJdQXrMdHloahM+09enp//b9TAA+je74u+BzgDsO8B/ytjz4VPeucgAAAABJRU5ErkJggg==',
+          offset: {x: 29, y: 29},
+          size: {
+            width: 58,
+            height: 58
+          }
+        },
+      });
+
+      map.call('Overlays.add', newMarker);
+    });
+  }
+
   async function draggableMarker() {
     let location = await map.call('location');
     let newMarker = Longdo.object('Marker', location, {
@@ -378,8 +407,14 @@ function HomeScreen({navigation}) {
       {/* <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} /> */}
       <TextInput
         style={styles.input}
-        placeholder="ใส่คำค้นหา"
+        placeholder="ใส่คำค้นหาต้นทาง"
+        value={originSearch}
         onFocus={() => navigation.navigate('Search')}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="ใส่คำค้นหาปลายทาง"
+        onFocus={() => navigation.navigate('SearchDestination')}
       />
       <Longdo.MapView
         ref={r => (map = r)}
@@ -401,6 +436,7 @@ function HomeScreen({navigation}) {
       </Text>
       <View style={styles.fixToText}>
         <Button title="Add Marker" onPress={addMarker} />
+        <Button title="Add Multiple Marker" onPress={addMultipleMarker} />
         <Button title="Draggable Marker" onPress={draggableMarker} />
         <Button title="Add Polygon" onPress={addPolygon} />
         <Button title="Clear Overlays" onPress={clearOverlays} />
@@ -477,21 +513,25 @@ function SearchScreen({navigation}) {
       .then(response => response.json())
       .then(responseJson => {
         map.call('Overlays.clear');
-        responseJson.data.forEach(item => {
-          let newMarker = Longdo.object(
-            'Marker',
-            {lat: item.lat, lon: item.lon},
-            {
-              title: item.name,
-              detail: item.address,
-            },
-          );
-          map.call('Overlays.add', newMarker);
-        });
+        map.call('Route.clear');
+        console.log(responseJson.data)
+        originSearch.setText
+        // responseJson.data.forEach(item => {
+        //   let newMarker = Longdo.object(
+        //     'Marker',
+        //     {lat: item.lat, lon: item.lon},
+        //     {
+        //       title: item.name,
+        //       detail: item.address,
+        //     },
+        //   );
+        //   map.call('Overlays.add', newMarker);
+        // });
         let location = {
           lon: responseJson.data[0].lon,
           lat: responseJson.data[0].lat,
         };
+        map.call('Route.add', location);
         map.call('location', location);
         navigation.navigate('Home', {
           responseJson: responseJson.data,
@@ -529,7 +569,7 @@ function SearchScreen({navigation}) {
           onChangeText={text => searchFilterFunction(text)}
           autoFocus
           value={search}
-          placeholder="ใส่คำค้นหา"
+          placeholder="ใส่คำค้นหาต้นทาง"
         />
       </View>
 
@@ -542,6 +582,115 @@ function SearchScreen({navigation}) {
     </View>
   );
 }
+function SearchDestinationScreen({navigation}) {
+  // *****************************************************************
+
+  const [search, setSearch] = useState('');
+  const [filteredDataSource, setFilteredDataSource] = useState([]);
+
+  const searchFilterFunction = text => {
+    if (text.length >= 3) {
+      const urlSuggest =
+        'https://search.longdo.com/mapsearch/json/suggest?limit=10&key=' +
+        keyAPI +
+        '&keyword=' +
+        text;
+      fetch(urlSuggest)
+        .then(response => response.json())
+        .then(responseJson => {
+          setFilteredDataSource(responseJson.data);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+      setSearch(text);
+    } else {
+      setFilteredDataSource([]);
+      setSearch(text);
+    }
+  };
+
+  const ItemSeparatorView = () => {
+    return (
+      // Flat List Item Separator
+      <View
+        style={{
+          height: 1,
+          backgroundColor: '#C8C8C8',
+          marginHorizontal: 12,
+        }}
+      />
+    );
+  };
+
+  const getItem = item => {
+    const urlSearch =
+      'https://search.longdo.com/mapsearch/json/search?limit=20&key=' +
+      keyAPI +
+      '&keyword=' +
+      item;
+    fetch(urlSearch)
+      .then(response => response.json())
+      .then(responseJson => {
+        // map.call('Overlays.clear');
+        console.log(responseJson.data)
+        let location = {
+          lon: responseJson.data[0].lon,
+          lat: responseJson.data[0].lat,
+        };
+        map.call('Route.add', location);
+        map.call('Route.search');
+        map.call('location', location);
+        navigation.navigate('Home', {
+          responseJson: responseJson.data,
+        });
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+
+  const Item = ({title}) => {
+    return (
+      <View>
+        <Text style={styles.textSuggest} onPress={() => getItem(title)}>
+          {title}
+        </Text>
+      </View>
+    );
+  };
+  const DATA = [
+    {
+      data: filteredDataSource.map(item => item.w),
+    },
+  ];
+
+  // ***************************************************************
+  return (
+    <View>
+      <View style={{flexDirection: 'row'}}>
+        <TouchableOpacity style={styles.buttonBack}>
+          <Button title="Back" onPress={() => navigation.navigate('Home')} />
+        </TouchableOpacity>
+        <TextInput
+          style={styles.inputSearch}
+          onChangeText={text => searchFilterFunction(text)}
+          autoFocus
+          value={search}
+          placeholder="ใส่คำค้นหาปลายทาง"
+        />
+      </View>
+
+      <SectionList
+        sections={DATA}
+        keyExtractor={(item, index) => item + index}
+        ItemSeparatorComponent={ItemSeparatorView}
+        renderItem={({item}) => <Item title={item} />}
+      />
+    </View>
+  );
+}
+
 const Stack = createNativeStackNavigator();
 
 const App: () => Node = () => {
@@ -554,6 +703,7 @@ const App: () => Node = () => {
         }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Search" component={SearchScreen} />
+        <Stack.Screen name="SearchDestination" component={SearchDestinationScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

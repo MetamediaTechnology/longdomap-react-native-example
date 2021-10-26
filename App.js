@@ -529,7 +529,8 @@ function SearchScreen({navigation}) {
           lon: responseJson.data[0].lon,
           lat: responseJson.data[0].lat,
         };
-        map.call('Route.add', location);
+        let starterPoint = Longdo.object('Marker', location, {detail: 'Home'});
+        map.call('Route.add', starterPoint);
         map.call('location', location);
         navigation.navigate('Home', {
           responseJson: responseJson.data,
@@ -630,8 +631,6 @@ function SearchDestinationScreen({navigation}) {
     fetch(urlSearch)
       .then(response => response.json())
       .then(responseJson => {
-        // map.call('Overlays.clear');
-        console.log(responseJson.data)
         let location = {
           lon: responseJson.data[0].lon,
           lat: responseJson.data[0].lat,
